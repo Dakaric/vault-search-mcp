@@ -1,0 +1,41 @@
+[project]
+name = "vault-search-mcp"
+version = "0.1.0"
+description = "Lokale semantische Suche und Strukturanalyse für Markdown-Vaults"
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+authors = [{ name = "Dakaric" }]
+dependencies = [
+    "mcp>=1.12",
+    "lancedb>=0.14",
+    "pyarrow>=17",
+    "httpx>=0.27",
+    "pydantic>=2.8",
+    "python-frontmatter>=1.1",
+]
+
+[project.scripts]
+vault-search-mcp = "vault_search.server:main"
+vault-reindex = "vault_search.cli:reindex"
+vault-selfcheck = "vault_search.cli:selfcheck"
+vault-graph = "vault_graph.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/vault_search", "src/vault_md", "src/vault_graph"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+    "ruff>=0.6",
+]

@@ -1,0 +1,16 @@
+name: Tests und Rauchtest
+on: [push, pull_request]
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Tests mit Python 3.12
+        run: uv run --python 3.12 pytest -q
+      - name: Installer ohne Änderungen prüfen
+        run: uv run --no-dev --python 3.12 python -m installer --dry-run --yes --vault "${{ runner.temp }}"
