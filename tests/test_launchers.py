@@ -96,7 +96,7 @@ def test_powershell_launcher_from_other_directory(tmp_path, receiver, exit_code)
         + powershell_uv_fake(tmp_path, receiver, exit_code)
         + "& "
         + " ".join(powershell_quote(arg) for arg in [repo / "install.ps1", *forwarded])
-        + "\n",
+        + "\nexit $LASTEXITCODE\n",
         encoding="utf-8",
     )
     result = subprocess.run(
