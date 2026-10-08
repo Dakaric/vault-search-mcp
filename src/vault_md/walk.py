@@ -29,7 +29,7 @@ def iter_markdown_files(vault_root: Path, ignored_dirs: Collection[str]) -> Iter
 
 def read_note(path: Path) -> tuple[str, dict]:
     try:
-        post = frontmatter.load(path)
+        post = frontmatter.load(path, encoding="utf-8")
         return post.content, post.metadata
     except Exception:
         return path.read_text(encoding="utf-8", errors="replace"), {}

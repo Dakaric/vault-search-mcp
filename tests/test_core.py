@@ -69,9 +69,9 @@ def test_backup_names_copy_with_timestamp(tmp_path):
 def test_backup_directory(tmp_path):
     folder = tmp_path / "config"
     folder.mkdir()
-    (folder / "a.json").write_text("{}")
+    (folder / "a.json").write_text("{}", encoding="utf-8")
     saved = fsutil.backup(folder)
-    assert (saved / "a.json").read_text() == "{}"
+    assert (saved / "a.json").read_text(encoding="utf-8") == "{}"
 
 
 def test_safe_rmtree_refuses_outside_root(tmp_path):
@@ -87,7 +87,7 @@ def test_safe_rmtree_refuses_root_itself(tmp_path):
 def test_safe_rmtree_removes_only_cache_child(tmp_path):
     child = tmp_path / "cache" / "download"
     child.mkdir(parents=True)
-    (child / "file").write_text("Inhalt")
+    (child / "file").write_text("Inhalt", encoding="utf-8")
     fsutil.safe_rmtree(child, tmp_path / "cache")
     assert not child.exists()
     assert (tmp_path / "cache").exists()

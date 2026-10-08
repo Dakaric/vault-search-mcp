@@ -6,5 +6,5 @@ if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
 }
 $env:PYTHONPATH = "$repo$([IO.Path]::PathSeparator)$(Join-Path $repo 'src')"
 $env:PYTHONUTF8 = '1'
-& uv run --no-project --directory $repo --python 3.12 python -m installer @args
+& uv run --no-project --directory $repo --python '3.12' python -m installer @args
 exit $LASTEXITCODE

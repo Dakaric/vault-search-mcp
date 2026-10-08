@@ -35,8 +35,9 @@ def repository_files():
         cwd=ROOT,
         check=True,
         capture_output=True,
+        encoding="utf-8",
     )
-    files = [ROOT / item.decode("utf-8") for item in result.stdout.split(b"\0") if item]
+    files = [ROOT / item for item in result.stdout.split("\0") if item]
     assert files, "Wächter braucht Dateien zum Prüfen"
     return [p for p in files if p.is_file() and p.name != "uv.lock"]
 

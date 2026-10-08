@@ -2,6 +2,7 @@ import ast
 import asyncio
 import json
 import os
+import socket
 import subprocess
 import sys
 from dataclasses import replace
@@ -23,13 +24,30 @@ from vault_search.store import Chunk, VaultStore
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_search_description_explains_distance():
+@pytest.fixture(scope="module")
+def async_runner():
+    # Windows braucht socketpair beim Start, vor der Netzwerksperre pro Test.
+    with asyncio.Runner() as runner:
+        yield runner
+
+
+def test_search_description_explains_distance(async_runner):
     from vault_search.server import mcp
 
     sentence = "score ist eine Distanz: kleiner heißt passender"
-    tool = next(tool for tool in asyncio.run(mcp.list_tools()) if tool.name == "vault_search")
+    tool = next(tool for tool in async_runner.run(mcp.list_tools()) if tool.name == "vault_search")
     assert sentence in tool.description
     assert sentence in mcp.instructions
+
+
+@pytest.mark.parametrize("host", ["127.0.0.1", "192.0.2.1"])
+def test_async_runner_keeps_network_blocked(async_runner, host):
+    async def connect():
+        with socket.socket() as client:
+            client.connect((host, 80))
+
+    with pytest.raises(AssertionError, match="Netzaufrufe"):
+        async_runner.run(connect())
 
 
 @pytest.fixture
@@ -180,6 +198,7 @@ def test_installer_starts_without_third_party_packages(tmp_path):
         env=environment,
         capture_output=True,
         text=True,
+        encoding="utf-8",
     )
     assert result.returncode == 0, result.stderr
     assert "Dry-Run" in result.stdout
@@ -293,7 +312,8 @@ def test_installer_rebuilds_changed_model_without_marker_backups(context, monkey
     assert "--no-dev" in command
     assert "--no-dev" in register.command(context)
     folder = index.index_directory(context)
-    assert json.loads((folder / "installer.json").read_text())["model"] == "new-model"
+    marker = json.loads((folder / "installer.json").read_text(encoding="utf-8"))
+    assert marker["model"] == "new-model"
     assert not list(folder.glob("installer.json.sicherung-*"))
 
 
